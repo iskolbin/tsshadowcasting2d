@@ -14,6 +14,8 @@ export class ShadowCasting2D {
 		[ 1, 0, 0, 1],
 	]
 
+	static GET_DIRECTIONS_8: () => Direction[] = () => ShadowCasting2D.DIRECTIONS_8
+
 	static MANHATTAN: Distance2D = ( dx, dy ) => Math.abs( dx ) + Math.abs( dy )
 	static EUCLIDEAN: Distance2D = ( dx, dy ) => (dx*dx + dy*dy)**0.5
 	static CHEBYSHEV: Distance2D = ( dx, dy ) => Math.max( Math.abs( dx ), Math.abs( dy ))
@@ -23,7 +25,7 @@ export class ShadowCasting2D {
 		public isBlocked: ( x: number, y: number ) => boolean,
 		public callback: ( x: number, y: number, power: number ) => void,
 		public distance: Distance2D = ShadowCasting2D.EUCLIDEAN,
-		public directions: Direction[] = ShadowCasting2D.DIRECTIONS_8
+		public directions: () => Direction[] = ShadowCasting2D.GET_DIRECTIONS_8
 	) {}
 
 	illuminate( x0: number, y0: number, power: number ) {
@@ -34,7 +36,7 @@ export class ShadowCasting2D {
 
 		this.callback( 0, 0, power )
 
-		for ( const [xx,xy,yx,yy] of this.directions ) {
+		for ( const [xx,xy,yx,yy] of this.directions() ) {
 			const stack: number[] = [1,1,0]
 			let n = 3
 			while ( n > 0 ) {
