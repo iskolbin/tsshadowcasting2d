@@ -23,18 +23,18 @@ export class ShadowCasting2D<T> {
 	constructor(
 		public getBounds: ( state: T ) => [number,number,number,number],
 		public isBlocked: ( state: T, x: number, y: number ) => boolean,
-		public callback: ( state: T, x: number, y: number, power: number ) => void,
+		public callback: ( state: T, x: number, y: number, power: number ) => T,
 		public getDistance: Distance2D = ShadowCasting2D.EUCLIDEAN,
 		public getDirections: () => Direction[] = ShadowCasting2D.GET_DIRECTIONS_8
 	) {}
 
-	illuminate( state: T, x0: number, y0: number, power: number ) {
+	illuminate( state: T, x0: number, y0: number, power: number ): T {
 		const radius = Math.abs( power )
 		const negative = power < 0
 		const decay = 1 / radius
 		const [minX, minY, maxX, maxY] = this.getBounds( state )
 
-		this.callback( state, 0, 0, power )
+		let newState = this.callback( state, 0, 0, power )
 
 		for ( const [xx,xy,yx,yy] of this.getDirections() ) {
 			const stack: number[] = [1,1,0]
@@ -74,7 +74,7 @@ export class ShadowCasting2D<T> {
 									if ( negative ) {
 										bright = -bright
 									}
-									this.callback( state, x, y, bright )
+									newState = this.callback( state, x, y, bright )
 								}
 							}
 
@@ -98,5 +98,6 @@ export class ShadowCasting2D<T> {
 				}
 			}
 		}
+		return newState
 	}
 }
