@@ -4,7 +4,7 @@
   "types": "./lib/index.d.ts",
   "repository": "github.com/iskolbin/",
   "description": "Shadowcasting for FOV",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "author": "iskolbin",
   "license": "MIT",
   "scripts": {

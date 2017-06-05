@@ -2,7 +2,7 @@ export type Direction = [number,number,number,number]
 
 export type Distance2D = ( x: number, y: number ) => number
 
-export class ShadowCasting2D {
+export class ShadowCasting2D<T> {
 	static DIRECTIONS_8: Direction[] = [
 		[ 0,-1,-1, 0],
 		[-1, 0, 0,-1],
@@ -21,22 +21,22 @@ export class ShadowCasting2D {
 	static CHEBYSHEV: Distance2D = ( dx, dy ) => Math.max( Math.abs( dx ), Math.abs( dy ))
 
 	constructor(
-		public bounds: [number,number,number,number],
-		public isBlocked: ( x: number, y: number ) => boolean,
-		public callback: ( x: number, y: number, power: number ) => void,
-		public distance: Distance2D = ShadowCasting2D.EUCLIDEAN,
-		public directions: () => Direction[] = ShadowCasting2D.GET_DIRECTIONS_8
+		public getBounds: ( state: T ) => [number,number,number,number],
+		public isBlocked: ( state: T, x: number, y: number ) => boolean,
+		public callback: ( state: T, x: number, y: number, power: number ) => void,
+		public getDistance: Distance2D = ShadowCasting2D.EUCLIDEAN,
+		public getDirections: () => Direction[] = ShadowCasting2D.GET_DIRECTIONS_8
 	) {}
 
-	illuminate( x0: number, y0: number, power: number ) {
+	illuminate( state: T, x0: number, y0: number, power: number ) {
 		const radius = Math.abs( power )
 		const negative = power < 0
 		const decay = 1 / radius
-		const [minX, minY, maxX, maxY] = this.bounds
+		const [minX, minY, maxX, maxY] = this.getBounds( state )
 
-		this.callback( 0, 0, power )
+		this.callback( state, 0, 0, power )
 
-		for ( const [xx,xy,yx,yy] of this.directions() ) {
+		for ( const [xx,xy,yx,yy] of this.getDirections() ) {
 			const stack: number[] = [1,1,0]
 			let n = 3
 			while ( n > 0 ) {
@@ -65,7 +65,7 @@ export class ShadowCasting2D {
 							} else if ( finish > leftSlope ) {
 								break
 							} else {
-								const distance = this.distance( dx, dy )
+								const distance = this.getDistance( dx, dy )
 								if ( distance <= radius ) {
 									let bright = 1.0 - decay * distance
 									if ( dy === 0 || dx === 0 || dy === dx ) {
@@ -74,18 +74,18 @@ export class ShadowCasting2D {
 									if ( negative ) {
 										bright = -bright
 									}
-									this.callback( x, y, bright )
+									this.callback( state, x, y, bright )
 								}
 							}
 
 							if ( blocked ) {
-								if ( this.isBlocked( x, y )) {
+								if ( this.isBlocked( state, x, y )) {
 									newStart = rightSlope
 								} else {
 									blocked = false
 									start = newStart
 								}
-							} else if ( this.isBlocked( x, y ) && -dy < radius ) {
+							} else if ( this.isBlocked( state, x, y ) && -dy < radius ) {
 								blocked = true
 								n += 3
 								stack[n-3] = -dy + 1
