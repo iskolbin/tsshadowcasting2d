@@ -34,7 +34,7 @@ export class ShadowCasting2D<T> {
 		const decay = 1 / radius
 		const [minX, minY, maxX, maxY] = this.getBounds( state )
 
-		let newState = this.callback( state, 0, 0, power )
+		let newState = this.callback( state, x0, y0, power )
 
 		for ( const [xx,xy,yx,yy] of this.getDirections() ) {
 			const stack: number[] = [1,1,0]
@@ -74,18 +74,18 @@ export class ShadowCasting2D<T> {
 									if ( negative ) {
 										bright = -bright
 									}
-									newState = this.callback( state, x, y, bright )
+									newState = this.callback( newState, x, y, bright )
 								}
 							}
 
 							if ( blocked ) {
-								if ( this.isBlocked( state, x, y )) {
+								if ( this.isBlocked( newState, x, y )) {
 									newStart = rightSlope
 								} else {
 									blocked = false
 									start = newStart
 								}
-							} else if ( this.isBlocked( state, x, y ) && -dy < radius ) {
+							} else if ( this.isBlocked( newState, x, y ) && -dy < radius ) {
 								blocked = true
 								n += 3
 								stack[n-3] = -dy + 1
