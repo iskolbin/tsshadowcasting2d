@@ -23,7 +23,7 @@ export class ShadowCasting2D<T> {
 	constructor(
 		public getBounds: ( state: T ) => [number,number,number,number],
 		public isBlocked: ( state: T, x: number, y: number ) => boolean,
-		public onVisible: ( state: T, x: number, y: number ) => T,
+		public onVisible: ( state: T, x: number, y: number, distance: number ) => T,
 		public getDistance: Distance2D = ShadowCasting2D.EUCLIDEAN,
 		public getDirections: () => Direction[] = ShadowCasting2D.GET_DIRECTIONS_8
 	) {}
@@ -31,7 +31,7 @@ export class ShadowCasting2D<T> {
 	illuminate( state: T, x0: number, y0: number, radius: number ): T {
 		const [minX, minY, maxX, maxY] = this.getBounds( state )
 
-		let newState = this.onVisible( state, x0, y0 )
+		let newState = this.onVisible( state, x0, y0, 0 )
 
 		for ( const [xx,xy,yx,yy] of this.getDirections() ) {
 			const stack: number[] = [1,1,0]
@@ -62,8 +62,9 @@ export class ShadowCasting2D<T> {
 							} else if ( finish > leftSlope ) {
 								break
 							} else {
-								if ( this.getDistance( dx, dy ) <= radius ) {
-									newState = this.onVisible( newState, x, y )
+								const distance = this.getDistance( dx, dy )
+								if ( distance <= radius ) {
+									newState = this.onVisible( newState, x, y, distance )
 								}
 							}
 
@@ -86,6 +87,26 @@ export class ShadowCasting2D<T> {
 					}
 				}
 			}
+		}
+		for ( let i = 1; i <= radius; i++ ) {
+			const x = x0 + i
+			newState = this.onVisible( newState, x, y0, i )
+			if ( x > maxX || this.isBlocked( newState, x, y0 )) break
+		}
+		for ( let i = 1; i <= radius; i++ ) {
+			const x = x0 - i
+			newState = this.onVisible( newState, x, y0, i )
+			if ( x < minX || this.isBlocked( newState, x, y0 )) break
+		}
+		for ( let i = 1; i <= radius; i++ ) {
+			const y = y0 + i
+			newState = this.onVisible( newState, x0, y, i )
+			if ( y > maxY || this.isBlocked( newState, x0, y )) break
+		}
+		for ( let i = 1; i <= radius; i++ ) {
+			const y = y0 - i
+			newState = this.onVisible( newState, x0, y, i )
+			if ( y < minX || this.isBlocked( newState, x0, y )) break
 		}
 		return newState
 	}
