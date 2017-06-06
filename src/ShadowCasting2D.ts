@@ -23,18 +23,15 @@ export class ShadowCasting2D<T> {
 	constructor(
 		public getBounds: ( state: T ) => [number,number,number,number],
 		public isBlocked: ( state: T, x: number, y: number ) => boolean,
-		public callback: ( state: T, x: number, y: number, power: number ) => T,
+		public onVisible: ( state: T, x: number, y: number ) => T,
 		public getDistance: Distance2D = ShadowCasting2D.EUCLIDEAN,
 		public getDirections: () => Direction[] = ShadowCasting2D.GET_DIRECTIONS_8
 	) {}
 
-	illuminate( state: T, x0: number, y0: number, power: number ): T {
-		const radius = Math.abs( power )
-		const negative = power < 0
-		const decay = 1 / radius
+	illuminate( state: T, x0: number, y0: number, radius: number ): T {
 		const [minX, minY, maxX, maxY] = this.getBounds( state )
 
-		let newState = this.callback( state, x0, y0, power )
+		let newState = this.onVisible( state, x0, y0 )
 
 		for ( const [xx,xy,yx,yy] of this.getDirections() ) {
 			const stack: number[] = [1,1,0]
@@ -54,7 +51,7 @@ export class ShadowCasting2D<T> {
 						let rightSlope = (dy - 0.5) * invDyMinus05
 						const xydy = xy * dy
 						const yydy = yy * dy
-						for ( let dx = dy; dx >= 0; dx++ ) {
+						for ( let dx = dy; dx < 0; dx++ ) {
 							let x = x0 + dx * xx + xydy
 							let y = y0 + yx * dx + yydy
 							leftSlope  += invDyPlus05
@@ -65,16 +62,8 @@ export class ShadowCasting2D<T> {
 							} else if ( finish > leftSlope ) {
 								break
 							} else {
-								const distance = this.getDistance( dx, dy )
-								if ( distance <= radius ) {
-									let bright = 1.0 - decay * distance
-									if ( dy === 0 || dx === 0 || dy === dx ) {
-										bright *= 0.5
-									}
-									if ( negative ) {
-										bright = -bright
-									}
-									newState = this.callback( newState, x, y, bright )
+								if ( this.getDistance( dx, dy ) <= radius ) {
+									newState = this.onVisible( newState, x, y )
 								}
 							}
 
