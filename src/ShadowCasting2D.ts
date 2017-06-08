@@ -46,7 +46,7 @@ export class ShadowCasting2D<T> {
 
 		let newState = onStart.call( this, state, x0, y0 )
 
-		newState = onVisible.call( this, state, x0, y0, 0 )
+		newState = onVisible.call( this, newState, x0, y0, 0 )
 
 		for ( const [xx,xy,yx,yy] of this.getDirections() ) {
 			const stack: number[] = [1,1,0]
