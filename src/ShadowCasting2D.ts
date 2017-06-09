@@ -73,7 +73,7 @@ export class ShadowCasting2D<T> {
 							rightSlope += invDyMinus05
 
 							if ( !(x >= minX && y >= minY && x <= maxX && y <= maxY) || start < rightSlope ) {
-							
+
 							} else if ( finish > leftSlope ) {
 								break
 							} else {
@@ -81,22 +81,21 @@ export class ShadowCasting2D<T> {
 								if ( distance <= radius ) {
 									newState = onVisible.call( this, newState, x, y, distance )
 								}
-							}
-
-							if ( blocked ) {
-								if ( this.isBlocked( newState, x, y )) {
+								if ( blocked ) {
+									if ( this.isBlocked( newState, x, y )) {
+										newStart = rightSlope
+									} else {
+										blocked = false
+										start = newStart
+									}
+								} else if ( this.isBlocked( newState, x, y ) && -dy < radius ) {
+									blocked = true
+									n += 3
+									stack[n-3] = -dy + 1
+									stack[n-2] = start
+									stack[n-1] = leftSlope
 									newStart = rightSlope
-								} else {
-									blocked = false
-									start = newStart
 								}
-							} else if ( this.isBlocked( newState, x, y ) && -dy < radius ) {
-								blocked = true
-								n += 3
-								stack[n-3] = -dy + 1
-								stack[n-2] = start
-								stack[n-1] = leftSlope
-								newStart = rightSlope
 							}
 						}
 					}
