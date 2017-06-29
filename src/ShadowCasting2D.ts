@@ -1,4 +1,4 @@
-export interface ShadowCastingParams<T> {
+export interface Params<T> {
 	isBlocked: ( state: T, x: number, y: number ) => boolean,
 	getBounds?: ( state: T ) => [number,number,number,number],
 	directions?: [number,number,number,number][]
@@ -36,7 +36,7 @@ function alwaysTrue( ..._: any[] ): boolean {
 
 const DEFAULT_BOUNDS: [number,number,number,number] = [-Infinity,-Infinity,Infinity,Infinity]
 
-export function evaluate<T>( initialState: T, x0: number, y0: number, radius: number, params: ShadowCastingParams<T> ) {
+export function evaluate<T>( initialState: T, x0: number, y0: number, radius: number, params: Params<T> ) {
 	const thisArg = params.thisArg
 	const [minX, minY, maxX, maxY] = params.getBounds ? params.getBounds( initialState ) : DEFAULT_BOUNDS
 	const isBlocked = params.isBlocked || alwaysTrue
@@ -131,7 +131,7 @@ export function evaluate<T>( initialState: T, x0: number, y0: number, radius: nu
 
 export class ShadowCasting2D<T> {	
 	constructor(
-		protected params: ShadowCastingParams<T> ) { 
+		protected params: Params<T> ) { 
 	}
 
 	evaluate( state: T, x0: number, y0: number, radius: number ): T {
