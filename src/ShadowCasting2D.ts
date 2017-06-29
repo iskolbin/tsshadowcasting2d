@@ -1,6 +1,6 @@
 export interface ShadowCastingParams<T> {
 	isBlocked: ( state: T, x: number, y: number ) => boolean,
-	bounds?: [number,number,number,number],
+	getBounds?: ( state: T ) => [number,number,number,number],
 	directions?: [number,number,number,number][]
 	getDistance?: ( x: number, y: number ) => number,
 	onStart?: ( state: T, x: number, y: number ) => T,
@@ -38,7 +38,7 @@ const DEFAULT_BOUNDS: [number,number,number,number] = [-Infinity,-Infinity,Infin
 
 export function evaluate<T>( initialState: T, x0: number, y0: number, radius: number, params: ShadowCastingParams<T> ) {
 	const thisArg = params.thisArg
-	const [minX, minY, maxX, maxY] = params.bounds || DEFAULT_BOUNDS
+	const [minX, minY, maxX, maxY] = params.getBounds ? params.getBounds( initialState ) : DEFAULT_BOUNDS
 	const isBlocked = params.isBlocked || alwaysTrue
 	const getDistance = params.getDistance || EUCLIDEAN
 	const onStart: ( state: T, x: number, y: number ) => T = params.onStart || doNothing
