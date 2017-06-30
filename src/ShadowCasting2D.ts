@@ -83,22 +83,21 @@ export function evaluate<T>( initialState: T, x0: number, y0: number, radius: nu
 							if ( distance <= radius ) {
 								newState = onVisible.call( thisArg, newState, x, y, distance )
 							}
-						}
-
-						if ( blocked ) {
-							if ( isBlocked.call( thisArg, newState, x, y )) {
+							if ( blocked ) {
+								if ( isBlocked.call( thisArg, newState, x, y )) {
+									newStart = rightSlope
+								} else {
+									blocked = false
+									start = newStart
+								}
+							} else if ( isBlocked.call( thisArg, newState, x, y ) && -dy < radius ) {
+								blocked = true
+								n += 3
+								stack[n-3] = -dy + 1
+								stack[n-2] = start
+								stack[n-1] = leftSlope
 								newStart = rightSlope
-							} else {
-								blocked = false
-								start = newStart
 							}
-						} else if ( isBlocked.call( thisArg, newState, x, y ) && -dy < radius ) {
-							blocked = true
-							n += 3
-							stack[n-3] = -dy + 1
-							stack[n-2] = start
-							stack[n-1] = leftSlope
-							newStart = rightSlope
 						}
 					}
 				}
@@ -108,22 +107,22 @@ export function evaluate<T>( initialState: T, x0: number, y0: number, radius: nu
 	for ( let i = 1; i <= radius; i++ ) {
 		const x = x0 + i
 		newState = onVisible.call( thisArg, newState, x, y0, i )
-		if ( x > maxX || isBlocked.call( thisArg, newState, x, y0 )) break
+		if ( x >= maxX || isBlocked.call( thisArg, newState, x, y0 )) break
 	}
 	for ( let i = 1; i <= radius; i++ ) {
 		const x = x0 - i
 		newState = onVisible.call( thisArg, newState, x, y0, i )
-		if ( x < minX || isBlocked.call( thisArg, newState, x, y0 )) break
+		if ( x <= minX || isBlocked.call( thisArg, newState, x, y0 )) break
 	}
 	for ( let i = 1; i <= radius; i++ ) {
 		const y = y0 + i
 		newState = onVisible.call( thisArg, newState, x0, y, i )
-		if ( y > maxY || isBlocked.call( thisArg, newState, x0, y )) break
+		if ( y >= maxY || isBlocked.call( thisArg, newState, x0, y )) break
 	}
 	for ( let i = 1; i <= radius; i++ ) {
 		const y = y0 - i
 		newState = onVisible.call( thisArg, newState, x0, y, i )
-		if ( y < minX || isBlocked.call( thisArg, newState, x0, y )) break
+		if ( y <= minX || isBlocked.call( thisArg, newState, x0, y )) break
 	}
 	newState = onEnd.call( thisArg, newState )
 	return newState
