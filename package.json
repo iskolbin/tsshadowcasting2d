@@ -2,9 +2,14 @@
   "name": "tsshadowcasting2d",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
-  "repository": "github.com/iskolbin/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iskolbin/tsshadowcasting2d.git"
+  },
+	"bugs": "https://github.com/iskolbin/tsshadowcasting2d/issues",
   "description": "Shadowcasting for FOV",
-  "version": "0.3.3",
+  "keywords": ["shadowcasting","field-of-view","fov"],
+  "version": "0.3.4",
   "author": "iskolbin",
   "license": "MIT",
   "scripts": {
